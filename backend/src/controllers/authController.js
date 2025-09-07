@@ -26,7 +26,7 @@ exports.login = async (req, res) => {
         const usuario = rows[0];
 
         if(!usuario){
-            return res.status(404).json({error: 'Usuario não encontrado.'});
+            return res.status(409).json({error: 'Usuario não encontrado.'});
         }
     
     const senhaCorreta =  await bcrypt.compare(senha, usuario.senha);
@@ -35,7 +35,7 @@ exports.login = async (req, res) => {
     }
 
 
-    const token = jwt.sign({id: usuario.id_usuario, email: usuario.email}, 'SEGREDO_SUPER_SEGURO', {expiresIn: '1h'});
+    const token = jwt.sign({id: usuario.id_usuario, email: usuario.email}, process.env.JWT_SECRET, {expiresIn: '1h'});
     res.status(200).json({message: 'Login bem-sucedido!', token})
     
     
