@@ -6,6 +6,8 @@ const port = 3001;
 const authRoutes = require('./routes/authRoutes');
 const produtosRoutes = require('./routes/produtosRoutes')
 const transacoesRoutes = require('./routes/transacoesRoutes')
+const fornecedoresRoutes = require('./routes/fornecedoresRoutes')
+const usuariosRoutes = require('./routes/usuariosRoutes'); // Nova linha: Importa a rota de usuários
 
 app.use(express.json());
 app.use(cors());
@@ -17,7 +19,8 @@ app.get('/', (req, res) => {
 app.use('/api', authRoutes);
 app.use('/api', produtosRoutes);
 app.use('/api', transacoesRoutes);
-
+app.use('/api', fornecedoresRoutes);
+app.use('/api', usuariosRoutes); // Nova linha: Usa a rota de usuários
 
 app.listen(port, () => {
   console.log(`Servidor rodando na porta ${port}`);
