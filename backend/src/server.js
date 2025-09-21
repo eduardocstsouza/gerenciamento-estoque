@@ -7,7 +7,7 @@ const authRoutes = require('./routes/authRoutes');
 const produtosRoutes = require('./routes/produtosRoutes')
 const transacoesRoutes = require('./routes/transacoesRoutes')
 const fornecedoresRoutes = require('./routes/fornecedoresRoutes')
-const usuariosRoutes = require('./routes/usuariosRoutes'); // Nova linha: Importa a rota de usuários
+const usuariosRoutes = require('./routes/usuariosRoutes');
 
 app.use(express.json());
 app.use(cors());
@@ -20,7 +20,7 @@ app.use('/api', authRoutes);
 app.use('/api', produtosRoutes);
 app.use('/api', transacoesRoutes);
 app.use('/api', fornecedoresRoutes);
-app.use('/api', usuariosRoutes); // Nova linha: Usa a rota de usuários
+app.use('/api', usuariosRoutes);
 
 app.listen(port, () => {
   console.log(`Servidor rodando na porta ${port}`);
