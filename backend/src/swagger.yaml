@@ -1,0 +1,631 @@
+openapi: 3.0.0
+info:
+  title: API de Gerenciamento de Estoque
+  version: 1.0.0
+  description: API para gerenciar produtos, fornecedores, transações e usuários.
+
+servers:
+  - url: http://localhost:3001/api
+
+tags:
+  - name: Autenticação
+    description: Rotas para registro e login de usuários.
+  - name: Produtos
+    description: Rotas para gerenciar produtos.
+  - name: Transações
+    description: Rotas para registrar e obter transações de estoque.
+  - name: Fornecedores
+    description: Rotas para gerenciar fornecedores.
+  - name: Usuários
+    description: Rotas para gerenciar usuários.
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Usuario:
+      type: object
+      properties:
+        nome:
+          type: string
+          example: "João Silva"
+        email:
+          type: string
+          format: email
+          example: "joao.silva@example.com"
+        senha:
+          type: string
+          format: password
+          example: "senha123"
+    Login:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: "joao.silva@example.com"
+        senha:
+          type: string
+          format: password
+          example: "senha123"
+    Produto:
+      type: object
+      properties:
+        nome_produto:
+          type: string
+          example: "Cadeira Gamer"
+        sku:
+          type: string
+          example: "C-GAMER-001"
+        descricao:
+          type: string
+          example: "Cadeira ergonômica com ajustes."
+        quantidade_em_estoque:
+          type: integer
+          example: 50
+        preco_unitario:
+          type: number
+          format: float
+          example: 1250.00
+        fornecedores:
+          type: array
+          items:
+            type: integer
+          example: [1, 2]
+    ProdutoUpdate:
+      type: object
+      properties:
+        nome_produto:
+          type: string
+          example: "Cadeira Gamer PRO"
+        sku:
+          type: string
+          example: "C-GAMER-002"
+        descricao:
+          type: string
+          example: "Cadeira ergonômica com ajustes e encosto de cabeça."
+        preco_unitario:
+          type: number
+          format: float
+          example: 1500.00
+    Transacao:
+      type: object
+      properties:
+        id_produto:
+          type: integer
+          example: 1
+        quantidade:
+          type: integer
+          example: 10
+        tipo_transacao:
+          type: string
+          enum: [entrada, saida]
+          example: "entrada"
+    Fornecedor:
+      type: object
+      properties:
+        nome_fornecedor:
+          type: string
+          example: "Tech Suprimentos"
+        contato:
+          type: string
+          example: "contato@techsuprimentos.com"
+        cnpj:
+          type: string
+          example: "12.345.678/0001-90"
+    UsuarioUpdate:
+      type: object
+      properties:
+        nome:
+          type: string
+          example: "João Silva Atualizado"
+        email:
+          type: string
+          format: email
+          example: "joao.atualizado@example.com"
+        senha:
+          type: string
+          format: password
+          example: "nova-senha456"
+
+paths:
+  /register:
+    post:
+      summary: Registra um novo usuário
+      tags:
+        - Autenticação
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Usuario'
+      responses:
+        '201':
+          description: Usuário registrado com sucesso.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Usuario registrado com sucesso!"
+        '500':
+          description: Erro interno no servidor.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Erro interno no servidor"
+  /login:
+    post:
+      summary: Login de usuário
+      tags:
+        - Autenticação
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Login'
+      responses:
+        '200':
+          description: Login bem-sucedido, retorna um token JWT.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Login bem-sucedido!"
+                  token:
+                    type: string
+                    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        '404':
+          description: Usuário não encontrado.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Usuario não encontrado."
+        '401':
+          description: Credenciais inválidas.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Senha incorreta."
+        '500':
+          description: Erro interno no servidor.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Erro interno no servidor."
+  /produtos:
+    get:
+      summary: Lista todos os produtos ativos
+      tags:
+        - Produtos
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Lista de produtos obtida com sucesso.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Produto'
+        '401':
+          description: Não autorizado, token inválido ou ausente.
+        '500':
+          description: Erro interno no servidor.
+    post:
+      summary: Adiciona um novo produto
+      tags:
+        - Produtos
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Produto'
+      responses:
+        '201':
+          description: Produto adicionado com sucesso.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Produto e fornecedores associados com sucesso!"
+        '401':
+          description: Não autorizado, token inválido ou ausente.
+        '500':
+          description: Erro interno no servidor.
+  /produtos/{id}:
+    put:
+      summary: Atualiza um produto existente
+      tags:
+        - Produtos
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID do produto a ser atualizado.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProdutoUpdate'
+      responses:
+        '200':
+          description: Produto atualizado com sucesso.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Produto atualizado com sucesso!"
+        '401':
+          description: Não autorizado, token inválido ou ausente.
+        '404':
+          description: Produto não encontrado.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Produto não encontrado."
+        '500':
+          description: Erro interno no servidor.
+    delete:
+      summary: Desativa um produto (exclusão lógica)
+      tags:
+        - Produtos
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID do produto a ser desativado.
+      responses:
+        '200':
+          description: Produto desativado com sucesso.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Produto desativado com sucesso!"
+        '401':
+          description: Não autorizado, token inválido ou ausente.
+        '404':
+          description: Produto não encontrado.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Produto não encontrado."
+        '500':
+          description: Erro interno no servidor.
+  /transacoes:
+    get:
+      summary: Lista todas as transações de estoque
+      tags:
+        - Transações
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Lista de transações obtida com sucesso.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Transacao'
+        '401':
+          description: Não autorizado, token inválido ou ausente.
+        '500':
+          description: Erro interno no servidor.
+    post:
+      summary: Registra uma nova transação
+      tags:
+        - Transações
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Transacao'
+      responses:
+        '200':
+          description: Transação registrada e estoque atualizado com sucesso.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Transação registrada e estoque atualizado com sucesso."
+        '401':
+          description: Não autorizado, token inválido ou ausente.
+        '500':
+          description: Erro interno no servidor.
+  /fornecedores:
+    get:
+      summary: Lista todos os fornecedores
+      tags:
+        - Fornecedores
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Lista de fornecedores obtida com sucesso.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Fornecedor'
+        '401':
+          description: Não autorizado, token inválido ou ausente.
+        '500':
+          description: Erro interno no servidor.
+    post:
+      summary: Adiciona um novo fornecedor
+      tags:
+        - Fornecedores
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Fornecedor'
+      responses:
+        '201':
+          description: Fornecedor adicionado com sucesso.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Fornecedor adicionado com sucesso!"
+        '401':
+          description: Não autorizado, token inválido ou ausente.
+        '500':
+          description: Erro interno no servidor.
+  /fornecedores/{id}:
+    put:
+      summary: Atualiza um fornecedor existente
+      tags:
+        - Fornecedores
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID do fornecedor a ser atualizado.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Fornecedor'
+      responses:
+        '200':
+          description: Fornecedor atualizado com sucesso.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Fornecedor atualizado com sucesso!"
+        '401':
+          description: Não autorizado, token inválido ou ausente.
+        '404':
+          description: Fornecedor não encontrado.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Fornecedor não encontrado."
+        '500':
+          description: Erro interno no servidor.
+    delete:
+      summary: Deleta um fornecedor
+      tags:
+        - Fornecedores
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID do fornecedor a ser deletado.
+      responses:
+        '200':
+          description: Fornecedor deletado com sucesso.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Fornecedor deletado com sucesso!"
+        '401':
+          description: Não autorizado, token inválido ou ausente.
+        '404':
+          description: Fornecedor não encontrado.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Fornecedor não encontrado."
+        '500':
+          description: Erro interno no servidor.
+  /usuarios:
+    get:
+      summary: Lista todos os usuários
+      tags:
+        - Usuários
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Lista de usuários obtida com sucesso.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Usuario'
+        '401':
+          description: Não autorizado, token inválido ou ausente.
+        '500':
+          description: Erro interno no servidor.
+  /usuarios/{id}:
+    put:
+      summary: Atualiza um usuário existente
+      tags:
+        - Usuários
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID do usuário a ser atualizado.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UsuarioUpdate'
+      responses:
+        '200':
+          description: Usuário atualizado com sucesso.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Usuário atualizado com sucesso!"
+        '401':
+          description: Não autorizado, token inválido ou ausente.
+        '404':
+          description: Usuário não encontrado.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Usuário não encontrado."
+        '500':
+          description: Erro interno no servidor.
+    delete:
+      summary: Deleta um usuário
+      tags:
+        - Usuários
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID do usuário a ser deletado.
+      responses:
+        '200':
+          description: Usuário deletado com sucesso.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Usuário deletado com sucesso!"
+        '401':
+          description: Não autorizado, token inválido ou ausente.
+        '404':
+          description: Usuário não encontrado.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Usuário não encontrado."
+        '500':
+          description: Erro interno no servidor.

@@ -1,6 +1,6 @@
 const db = require('../database/connection');
 
-// Rota para obter todos os produtos ativos
+// rota para obter todos os produtos ativos
 exports.getProdutos = async (req, res) => {
     try {
         const [rows] = await db.query('SELECT * FROM produtos WHERE ativo = TRUE');
@@ -11,7 +11,7 @@ exports.getProdutos = async (req, res) => {
     }
 };
 
-// Rota para adicionar um novo produto e associar a fornecedores
+// rota para adicionar um novo produto e associar a fornecedores
 exports.addProduto = async (req, res) => {
     const { nome_produto, sku, descricao, quantidade_em_estoque, preco_unitario, fornecedores } = req.body;
     const connection = await db.getConnection();
@@ -39,7 +39,7 @@ exports.addProduto = async (req, res) => {
     }
 };
 
-// Rota para atualizar um produto
+// rota para atualizar um produto
 exports.updateProduto = async (req, res) => {
     const { id } = req.params;
     const { nome_produto, sku, descricao, preco_unitario } = req.body;
@@ -57,7 +57,7 @@ exports.updateProduto = async (req, res) => {
     }
 };
 
-// Rota para "deletar" (desativar) um produto
+// rota para "deletar" (inativar) um produto
 exports.deleteProduto = async (req, res) => {
     const { id } = req.params;
     

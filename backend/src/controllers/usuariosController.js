@@ -1,10 +1,10 @@
 const bcrypt = require('bcrypt');
 const db = require('../database/connection');
 
-// Rota para listar todos os usuários
+// rota para listar todos os usuários
 exports.getUsuarios = async (req, res) => {
     try {
-        // Seleciona todos os usuários, mas omite a coluna de senha por segurança
+        // seleciona todos os usuários, mas omite a coluna de senha por segurança
         const [rows] = await db.query('SELECT id_usuario, nome, email, criado_em FROM usuarios');
         res.status(200).json(rows);
     } catch (error) {
@@ -13,7 +13,7 @@ exports.getUsuarios = async (req, res) => {
     }
 };
 
-// Rota para atualizar um usuário (nome, email e opcionalmente a senha)
+// rota para atualizar um usuário (nome, email e opcionalmente a senha)
 exports.updateUsuario = async (req, res) => {
     const { id } = req.params;
     const { nome, email, senha } = req.body;
@@ -21,7 +21,7 @@ exports.updateUsuario = async (req, res) => {
         let sql = 'UPDATE usuarios SET nome = ?, email = ? WHERE id_usuario = ?';
         let params = [nome, email, id];
 
-        // Se uma nova senha for fornecida, ela deve ser criptografada antes de salvar
+        // se uma nova senha for fornecida, ela deve ser criptografada antes de salvar
         if (senha) {
             const senhaCriptografada = await bcrypt.hash(senha, 10);
             sql = 'UPDATE usuarios SET nome = ?, email = ?, senha = ? WHERE id_usuario = ?';
@@ -40,7 +40,7 @@ exports.updateUsuario = async (req, res) => {
     }
 };
 
-// Rota para deletar um usuário
+// rota para deletar um usuário
 exports.deleteUsuario = async (req, res) => {
     const { id } = req.params;
     try {

@@ -1,6 +1,6 @@
 const db = require('../database/connection');
 
-// Rota para listar todos os fornecedores
+// rota para listar todos os fornecedores
 exports.getFornecedores = async (req, res) => {
     try {
         const [rows] = await db.query('SELECT * FROM fornecedores');
@@ -11,7 +11,7 @@ exports.getFornecedores = async (req, res) => {
     }
 };
 
-// Rota para adicionar um novo fornecedor
+// rota para adicionar um novo fornecedor
 exports.addFornecedor = async (req, res) => {
     const { nome_fornecedor, contato, cnpj } = req.body;
     try {
@@ -24,7 +24,7 @@ exports.addFornecedor = async (req, res) => {
     }
 };
 
-// Rota para atualizar um fornecedor
+// rota para atualizar um fornecedor
 exports.updateFornecedor = async (req, res) => {
     const { id } = req.params;
     const { nome_fornecedor, contato, cnpj } = req.body;
@@ -42,7 +42,7 @@ exports.updateFornecedor = async (req, res) => {
     }
 };
 
-// Rota para deletar um fornecedor
+// rota para deletar um fornecedor
 exports.deleteFornecedor = async (req, res) => {
     const { id } = req.params;
     try {
